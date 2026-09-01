@@ -14,7 +14,7 @@
 //   }
 // Artinya seluruh collection "stock" — termasuk field kredensial
 // (email/password/note) — HANYA bisa dibaca oleh akun dengan
-// request.auth.token.email == "panavi@my.id". Karena rules sudah
+// request.auth.token.email == "alasky200@gmail.com". Karena rules sudah
 // menutup akses baca ke non-admin di level dokumen, TIDAK diperlukan
 // subcollection privat terpisah untuk menyembunyikan kredensial dari
 // user biasa — dokumen "stock" flat (satu level) sudah 100% aman selama
