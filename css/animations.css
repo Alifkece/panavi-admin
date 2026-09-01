@@ -1,0 +1,56 @@
+/* ==========================================================================
+   PANAVIBUNGA ADMIN — ANIMATIONS
+   ========================================================================== */
+
+@keyframes fadeSlideUp {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@keyframes pageEnter {
+  from { opacity: 0.4; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.page-transition-enter {
+  animation: pageEnter var(--dur) var(--ease) both;
+}
+
+.stagger-item {
+  opacity: 0;
+  animation: fadeSlideUp var(--dur) var(--ease) both;
+}
+.stagger-item:nth-child(1) { animation-delay: 0.02s; }
+.stagger-item:nth-child(2) { animation-delay: 0.06s; }
+.stagger-item:nth-child(3) { animation-delay: 0.10s; }
+.stagger-item:nth-child(4) { animation-delay: 0.14s; }
+.stagger-item:nth-child(5) { animation-delay: 0.18s; }
+.stagger-item:nth-child(6) { animation-delay: 0.22s; }
+.stagger-item:nth-child(7) { animation-delay: 0.26s; }
+.stagger-item:nth-child(8) { animation-delay: 0.30s; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* row highlight when a live Firestore update touches an existing row */
+@keyframes rowPulse {
+  0%   { background: var(--signal-soft); }
+  100% { background: transparent; }
+}
+.row-updated { animation: rowPulse 1.4s var(--ease-soft); }
+
+/* subtle float for auth brand mark */
+@keyframes floatY {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-4px); }
+}
+.auth-brand .brand-mark { animation: floatY 4s ease-in-out infinite; }

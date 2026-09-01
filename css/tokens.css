@@ -1,0 +1,98 @@
+/* ==========================================================================
+   PANAVIBUNGA ADMIN — DESIGN TOKENS
+   Concept: "Signal Room" — dark control console, di-restyle supaya senada
+   dengan tema Store (NASA Cyberpunk / Discord palette: navy gelap + neon
+   cyan + blurple + gold). NAMA variabel TIDAK diubah sama sekali — hanya
+   nilainya — supaya components.css/layout.css/pages.css (yang semuanya
+   sudah murni token-driven, lihat var(--signal)/var(--r-lg)/dst) otomatis
+   ikut berubah tanpa perlu disentuh satu pun, dan seluruh @media breakpoint
+   di layout.css tetap utuh (responsif tidak terpengaruh).
+   ========================================================================== */
+
+:root {
+  /* ---- Core surface (disamakan dengan --bg/--surface/--surface2 Store) ---- */
+  --bg: #060911;
+  --bg-mesh-1: #1b1240;   /* blurple/purple deep, senada --neon-purple Store */
+  --bg-mesh-2: #06202b;   /* cyan deep, senada --neon-cyan Store */
+  --bg-mesh-3: #2a0e35;   /* magenta deep, aksen ketiga */
+
+  --panel: rgba(255, 255, 255, 0.038);
+  --panel-solid: #111726;   /* == --surface Store */
+  --panel-2: rgba(255, 255, 255, 0.055);
+  --panel-hover: rgba(255, 255, 255, 0.07);
+  --border: rgba(88, 101, 242, 0.25);       /* == --border Store */
+  --border-soft: rgba(88, 101, 242, 0.14);
+  --border-strong: rgba(88, 101, 242, 0.4);
+
+  /* ---- Signal accents (dipetakan ke palet neon Store) ---- */
+  --signal: #5865f2;          /* == --accent Store (Discord Blurple) */
+  --signal-2: #4752c4;
+  --signal-soft: rgba(88, 101, 242, 0.14);
+  --amber: #fee75c;           /* == --gold Store */
+  --amber-soft: rgba(254, 231, 92, 0.14);
+  --emerald: #57f287;         /* == --success Store */
+  --emerald-soft: rgba(87, 242, 135, 0.14);
+  --rose: #ed4245;            /* == --danger Store */
+  --rose-soft: rgba(237, 66, 69, 0.14);
+  --cyan: #00f0ff;            /* == --neon-cyan Store */
+  --cyan-soft: rgba(0, 240, 255, 0.14);
+
+  /* ---- Text ---- */
+  --text: #f6f6fe;
+  --text-2: #8f9cae;
+  --text-3: #4e5058;
+  --text-inverse: #060911;
+
+  /* ---- Type (font Store: Syne untuk judul/angka, DM Sans untuk body) ---- */
+  --font-display: 'Syne', 'Space Grotesk', 'Inter', sans-serif;
+  --font-body: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, 'SF Mono', monospace;
+
+  /* ---- Radii (disamakan skalanya dengan --radius/--radius-sm Store) ---- */
+  --r-sm: 10px;
+  --r-md: 16px;
+  --r-lg: 20px;
+  --r-xl: 24px;
+  --r-pill: 999px;
+
+  /* ---- Shadow (glow cyan/blurple senada --glow-cyan/--glow-accent Store) ---- */
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.25);
+  --shadow-md: 0 8px 28px rgba(0, 0, 0, 0.38);
+  --shadow-lg: 0 20px 60px rgba(0, 0, 0, 0.5);
+  --shadow-glow-signal: 0 0 0 1px rgba(88, 101, 242, 0.35), 0 8px 28px rgba(88, 101, 242, 0.18);
+
+  /* ---- 3D tactile push (Store's signature "chunky" button/card depth,
+     ported near Store's actual weight so it's visible against a near-black
+     bg — earlier pass at 1-3px offset was too thin to read as anything).
+     Glow is baked into the RESTING shadow too, not just :hover, since
+     Store buttons glow even at rest. ---- */
+  --btn-3d-primary: 0 4px 0 0 #28328c, 0 0 16px rgba(88, 101, 242, 0.3);
+  --btn-3d-primary-hover: 0 6px 0 0 #28328c, 0 0 28px rgba(88, 101, 242, 0.55);
+  --btn-3d-primary-active: 0 1px 0 0 #28328c;
+  --btn-3d-ghost: 0 4px 0 0 rgba(0, 0, 0, 0.55);
+  --btn-3d-ghost-hover: 0 6px 0 0 rgba(0, 0, 0, 0.55), 0 0 16px rgba(0, 240, 255, 0.18);
+  --btn-3d-ghost-active: 0 1px 0 0 rgba(0, 0, 0, 0.55);
+  --btn-3d-danger: 0 4px 0 0 #7a2224, 0 0 14px rgba(237, 66, 69, 0.22);
+  --btn-3d-danger-hover: 0 6px 0 0 #7a2224, 0 0 26px rgba(237, 66, 69, 0.5);
+  --btn-3d-danger-active: 0 1px 0 0 #7a2224;
+  --card-3d: 0 6px 0 0 rgba(0, 0, 0, 0.5), 0 16px 32px rgba(0, 0, 0, 0.4);
+  --card-3d-hover: 0 10px 0 0 rgba(0, 0, 0, 0.5), 0 26px 50px rgba(0, 0, 0, 0.5), 0 0 32px rgba(88, 101, 242, 0.28);
+
+  /* ---- Motion (tidak diubah) ---- */
+  --ease: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-soft: cubic-bezier(0.4, 0, 0.2, 1);
+  --dur-fast: 140ms;
+  --dur: 240ms;
+  --dur-slow: 420ms;
+
+  /* ---- Layout (tidak diubah — breakpoint/ukuran struktural tetap sama) ---- */
+  --sidebar-w: 264px;
+  --sidebar-w-collapsed: 78px;
+  --topbar-h: 68px;
+  --navbar-h: 64px;
+}
+
+::selection {
+  background: var(--signal);
+  color: #fff;
+}

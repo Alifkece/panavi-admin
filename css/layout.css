@@ -1,0 +1,506 @@
+/* ==========================================================================
+   PANAVIBUNGA ADMIN — LAYOUT
+   ========================================================================== */
+
+/* ---------- App shell ---------- */
+#app-shell {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  grid-template-columns: var(--sidebar-w) 1fr;
+  min-height: 100vh;
+  transition: grid-template-columns var(--dur-slow) var(--ease);
+}
+#app-shell.sidebar-collapsed {
+  grid-template-columns: var(--sidebar-w-collapsed) 1fr;
+}
+
+/* ---------- Sidebar ---------- */
+.sidebar {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  padding: 20px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  background: linear-gradient(180deg, rgba(255,255,255,0.045), rgba(255,255,255,0.02));
+  border-right: 1px solid var(--border-soft);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  overflow-y: auto;
+  overflow-x: hidden;
+  transition: padding var(--dur-slow) var(--ease), transform var(--dur-slow) var(--ease);
+  /* GPU layer promotion — avoids the caret-blink black-flash repaint bug
+     without a base `transform` (the mobile slide-in below sets its own). */
+  will-change: backdrop-filter;
+  isolation: isolate;
+}
+#app-shell.sidebar-collapsed .sidebar { padding: 20px 12px; }
+
+.sidebar-brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 6px 8px 22px;
+  white-space: nowrap;
+}
+.brand-mark {
+  position: relative;
+  width: 38px; height: 38px;
+  flex-shrink: 0;
+  border-radius: 12px;
+  display: flex; align-items: center; justify-content: center;
+  background: linear-gradient(135deg, var(--signal), var(--signal-2));
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 16px;
+  color: #fff;
+  box-shadow: var(--shadow-glow-signal);
+}
+.brand-mark::after {
+  content: '';
+  position: absolute;
+  inset: -4px;
+  border-radius: 16px;
+  border: 1.5px solid rgba(88,101,242,0.5);
+  animation: ringPulse 2.6s var(--ease) infinite;
+}
+@keyframes ringPulse {
+  0% { transform: scale(0.9); opacity: 0.9; }
+  70% { transform: scale(1.25); opacity: 0; }
+  100% { opacity: 0; }
+}
+.brand-text { overflow: hidden; transition: opacity var(--dur) var(--ease), width var(--dur) var(--ease); }
+.brand-text strong { display: block; font-family: var(--font-display); font-size: 15px; font-weight: 700; }
+.brand-text span { display: block; font-size: 11px; color: var(--text-3); letter-spacing: 0.04em; }
+#app-shell.sidebar-collapsed .brand-text { opacity: 0; width: 0; }
+
+.sidebar-section-label {
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: var(--text-3);
+  padding: 16px 12px 6px;
+  white-space: nowrap;
+}
+#app-shell.sidebar-collapsed .sidebar-section-label { opacity: 0; }
+
+.nav-item {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px;
+  border-radius: var(--r-md);
+  color: var(--text-2);
+  font-size: 13.5px;
+  font-weight: 500;
+  white-space: nowrap;
+  transition: background var(--dur-fast) var(--ease-soft), color var(--dur-fast) var(--ease-soft);
+}
+.nav-item svg { flex-shrink: 0; width: 18px; height: 18px; }
+.nav-item .nav-label { overflow: hidden; transition: opacity var(--dur) var(--ease); }
+#app-shell.sidebar-collapsed .nav-item .nav-label { opacity: 0; width: 0; }
+#app-shell.sidebar-collapsed .nav-item { justify-content: center; }
+.nav-item:hover { background: var(--panel-hover); color: var(--text); }
+.nav-item.active {
+  background: linear-gradient(90deg, var(--signal-soft), transparent);
+  color: #fff;
+}
+.nav-item.active::before {
+  content: '';
+  position: absolute;
+  left: -16px; top: 8px; bottom: 8px;
+  width: 3px;
+  border-radius: var(--r-pill);
+  background: linear-gradient(180deg, var(--signal), var(--cyan));
+}
+#app-shell.sidebar-collapsed .nav-item.active::before { left: -12px; }
+.nav-item .nav-badge {
+  margin-left: auto;
+  font-size: 10.5px;
+  font-family: var(--font-mono);
+  background: var(--amber-soft);
+  color: var(--amber);
+  padding: 1px 7px;
+  border-radius: var(--r-pill);
+}
+#app-shell.sidebar-collapsed .nav-item .nav-badge { display: none; }
+
+/* ---------- Sidebar playback indicator (Music nav item) ---------- */
+/* Purely a status indicator — no floating player, no layout impact.
+   Hidden entirely until a song is loaded; bars only animate while playing. */
+.nav-eq {
+  margin-left: auto;
+  display: flex;
+  align-items: flex-end;
+  gap: 2px;
+  height: 12px;
+  width: 12px;
+  flex-shrink: 0;
+  color: var(--signal);
+}
+.nav-eq-bar {
+  flex: 1;
+  background: currentColor;
+  border-radius: 1px;
+  height: 30%;
+  animation: eqBounce 0.9s ease-in-out infinite;
+  animation-play-state: paused;
+}
+.nav-eq.is-playing .nav-eq-bar { animation-play-state: running; }
+.nav-eq-bar:nth-child(1) { animation-delay: -0.6s; }
+.nav-eq-bar:nth-child(2) { animation-delay: -0.2s; }
+.nav-eq-bar:nth-child(3) { animation-delay: -0.9s; }
+#app-shell.sidebar-collapsed .nav-item .nav-eq { display: none; }
+
+.sidebar-spacer { flex: 1; }
+
+.sidebar-collapse-btn {
+  display: flex; align-items: center; justify-content: center;
+  gap: 8px;
+  padding: 10px;
+  border: 1px solid var(--border-soft);
+  border-radius: var(--r-md);
+  background: var(--panel);
+  color: var(--text-3);
+  transition: all var(--dur-fast) var(--ease-soft);
+}
+.sidebar-collapse-btn:hover { color: var(--text); border-color: var(--border-strong); }
+.sidebar-collapse-btn svg { transition: transform var(--dur) var(--ease); }
+#app-shell.sidebar-collapsed .sidebar-collapse-btn svg { transform: rotate(180deg); }
+
+/* ---------- Main column ---------- */
+.main-col {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ---------- Topbar ---------- */
+.topbar {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  height: var(--topbar-h);
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 0 28px;
+  background: rgba(9, 11, 16, 0.72);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  border-bottom: 1px solid var(--border-soft);
+  /* NOTE: deliberately no `transform` here. This element is `position:
+     sticky`, and combining sticky positioning with a 3D transform
+     (translateZ) is a known Chromium compositor trigger for the same
+     black-flash bug we're avoiding — it does not fix it. will-change
+     alone still gives the backdrop-filter a caching hint without that
+     risk (mirrors the .sidebar rule below, which is sticky too). */
+  will-change: backdrop-filter;
+  isolation: isolate;
+}
+.topbar-mobile-toggle { display: none; }
+.topbar-title { display: flex; flex-direction: column; gap: 1px; }
+.topbar-title h1 { font-size: 17px; }
+.topbar-title small { font-size: 11.5px; color: var(--text-3); font-family: var(--font-mono); }
+
+.topbar-search {
+  flex: 1;
+  max-width: 380px;
+  position: relative;
+}
+.topbar-search input {
+  width: 100%;
+  background: var(--panel);
+  border: 1px solid var(--border-soft);
+  border-radius: var(--r-pill);
+  color: var(--text);
+  padding: 9px 14px 9px 38px;
+  font-size: 13px;
+  transition: all var(--dur-fast) var(--ease-soft);
+}
+.topbar-search input::placeholder { color: var(--text-3); }
+.topbar-search input:focus {
+  border-color: var(--signal);
+  background: var(--panel-2);
+  box-shadow: 0 0 0 3px var(--signal-soft);
+}
+.topbar-search svg {
+  position: absolute; left: 13px; top: 50%; transform: translateY(-50%);
+  color: var(--text-3); width: 15px; height: 15px; pointer-events: none;
+}
+
+.topbar-spacer { flex: 1; }
+
+.topbar-actions { display: flex; align-items: center; gap: 10px; }
+.icon-btn {
+  position: relative;
+  top: 0;
+  width: 38px; height: 38px;
+  display: flex; align-items: center; justify-content: center;
+  border-radius: var(--r-md);
+  background: var(--panel);
+  border: 1px solid var(--border-soft);
+  color: var(--text-2);
+  box-shadow: var(--btn-3d-ghost);
+  transition: top var(--dur-fast) var(--ease-soft), color var(--dur-fast) var(--ease-soft), border-color var(--dur-fast) var(--ease-soft), background var(--dur-fast) var(--ease-soft), box-shadow var(--dur-fast) var(--ease-soft);
+}
+.icon-btn:hover { top: -2px; color: var(--text); border-color: var(--border-strong); background: var(--panel-hover); box-shadow: var(--btn-3d-ghost-hover); }
+.icon-btn:active { top: 2px; box-shadow: var(--btn-3d-ghost-active); }
+@media (prefers-reduced-motion: reduce) {
+  .icon-btn:hover, .icon-btn:active { top: 0; }
+}
+.icon-btn .dot {
+  position: absolute; top: 7px; right: 8px;
+  width: 7px; height: 7px; border-radius: 50%;
+  background: var(--rose);
+  box-shadow: 0 0 0 2px var(--bg);
+}
+
+.topbar-profile {
+  display: flex; align-items: center; gap: 10px;
+  padding: 5px 10px 5px 5px;
+  border-radius: var(--r-pill);
+  border: 1px solid var(--border-soft);
+  background: var(--panel);
+  transition: all var(--dur-fast) var(--ease-soft);
+}
+.topbar-profile:hover { border-color: var(--border-strong); }
+.avatar-chip {
+  width: 30px; height: 30px; border-radius: 50%;
+  background: linear-gradient(135deg, var(--signal), var(--cyan));
+  display: flex; align-items: center; justify-content: center;
+  font-family: var(--font-display); font-weight: 700; font-size: 12.5px; color: #fff;
+  flex-shrink: 0;
+}
+.topbar-profile-meta { display: flex; flex-direction: column; line-height: 1.2; }
+.topbar-profile-meta strong { font-size: 12.5px; }
+.topbar-profile-meta span { font-size: 10.5px; color: var(--text-3); }
+
+/* ---------- Page content ---------- */
+.page-content {
+  flex: 1;
+  padding: 28px;
+  max-width: 1440px;
+  width: 100%;
+}
+
+/* ---------- Auth screen ---------- */
+.auth-screen {
+  position: relative;
+  z-index: 1;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+.auth-card {
+  width: 100%;
+  max-width: 400px;
+  background: var(--panel-2);
+  border: 1px solid var(--border);
+  border-radius: var(--r-xl);
+  padding: 38px 32px;
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  box-shadow: var(--shadow-lg);
+  /* GPU layer promotion — the login form's inputs sit directly inside this
+     card, which is exactly the layout that triggers the black-flash bug. */
+  transform: translateZ(0);
+  isolation: isolate;
+}
+.auth-brand { display: flex; flex-direction: column; align-items: center; gap: 14px; margin-bottom: 26px; }
+.auth-brand .brand-mark { width: 52px; height: 52px; font-size: 20px; border-radius: 16px; }
+.auth-brand h1 { font-size: 19px; text-align: center; }
+.auth-brand p { font-size: 12.5px; color: var(--text-3); text-align: center; }
+
+
+/* ==========================================================================
+   RESPONSIVE — capability-based (NOT width-based)
+   ==========================================================================
+   The old approach gated "desktop navbar" behind min-width:769px and
+   "mobile drawer" behind max-width:768px. That's exactly why a resized
+   Chrome window (fine pointer + real hover) got pushed into mobile mode
+   once it got narrow — it was being judged purely by pixel width.
+
+   Now the fork is decided by INPUT CAPABILITY, not width:
+     - (hover: hover) and (pointer: fine)  -> real desktop (mouse/trackpad),
+       always gets the horizontal navbar, no matter how small the window is.
+     - (hover: none), (pointer: coarse)    -> touch device, always gets the
+       mobile drawer, no matter how wide the screen is.
+   Width-based tiers still exist below, but only to COMPACT the desktop
+   navbar further as a fine-pointer window shrinks — they never flip it
+   into the mobile drawer. ========================================================================== */
+
+/* ---------- DESKTOP NAVBAR (mouse/trackpad — any width) ----------
+   Re-shapes the same sidebar markup into a horizontal top navbar.
+   Applies regardless of viewport width, so a resized Chrome window
+   never drops into mobile mode. No DOM/JS changes. */
+@media (hover: hover) and (pointer: fine) {
+  #app-shell {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+  }
+  #app-shell.sidebar-collapsed { grid-template-columns: none; }
+
+  .sidebar {
+    position: sticky;
+    top: 0;
+    z-index: 40;
+    height: var(--navbar-h);
+    width: 100%;
+    flex-direction: row;
+    align-items: center;
+    gap: 4px;
+    padding: 0 28px;
+    border-right: none;
+    border-bottom: 1px solid var(--border-soft);
+    overflow-x: auto;
+    overflow-y: hidden;
+    scrollbar-width: thin;
+  }
+  #app-shell.sidebar-collapsed .sidebar { padding: 0 28px; }
+  .sidebar::-webkit-scrollbar { height: 4px; }
+
+  .sidebar-brand {
+    padding: 0;
+    margin-right: 18px;
+    flex-shrink: 0;
+  }
+  .brand-text { opacity: 1; width: auto; }
+  #app-shell.sidebar-collapsed .brand-text { opacity: 1; width: auto; }
+
+  .sidebar-section-label { display: none; }
+
+  #sidebar-nav {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 4px;
+    flex-wrap: nowrap;
+    height: 100%;
+    min-width: 0;
+  }
+
+  .nav-item { flex-shrink: 0; }
+  .nav-item .nav-label { opacity: 1; width: auto; }
+  #app-shell.sidebar-collapsed .nav-item .nav-label { opacity: 1; width: auto; }
+  #app-shell.sidebar-collapsed .nav-item { justify-content: flex-start; }
+  .nav-item.active::before {
+    left: 8px;
+    right: 8px;
+    top: auto;
+    bottom: -1px;
+    width: auto;
+    height: 3px;
+    border-radius: var(--r-pill) var(--r-pill) 0 0;
+    background: linear-gradient(90deg, var(--signal), var(--cyan));
+  }
+  #app-shell.sidebar-collapsed .nav-item.active::before { left: 8px; }
+  #app-shell.sidebar-collapsed .nav-item .nav-badge { display: inline-block; }
+  .nav-item .nav-eq { margin-left: 8px; }
+  #app-shell.sidebar-collapsed .nav-item .nav-eq { display: flex; }
+
+  .sidebar-spacer { display: none; }
+  .sidebar-collapse-btn { display: none; }
+
+  .main-col { min-width: 0; }
+  .topbar { top: var(--navbar-h); min-width: 0; }
+  .topbar-title { min-width: 0; }
+
+  .page-content {
+    max-width: 1600px;
+    margin: 0 auto;
+    box-sizing: border-box;
+  }
+}
+
+/* ---------- DESKTOP NAVBAR — fluid compact tiers ----------
+   Still gated to fine pointer + hover, so these NEVER touch touch
+   devices. Nothing here applies above 1280px, so wide desktop
+   (1366px and up) is completely untouched — only compacts as a
+   desktop window is narrowed, all the way down to small windows.
+   #sidebar-nav already has overflow-x: auto above, so if the 9 nav
+   items still don't fit at any tier, it scrolls horizontally instead
+   of overlapping or spilling out of the viewport. */
+@media (hover: hover) and (pointer: fine) and (max-width: 1280px) {
+  .sidebar { padding: 0 20px; }
+  #app-shell.sidebar-collapsed .sidebar { padding: 0 20px; }
+  .topbar { padding: 0 20px; gap: 12px; }
+  .page-content { padding: 22px; }
+  .topbar-search { max-width: 220px; }
+}
+
+@media (hover: hover) and (pointer: fine) and (max-width: 1024px) {
+  .sidebar { padding: 0 16px; gap: 2px; }
+  #app-shell.sidebar-collapsed .sidebar { padding: 0 16px; }
+  .sidebar-brand { margin-right: 12px; }
+  .nav-item { padding: 8px 9px; gap: 8px; font-size: 12.5px; }
+  .nav-item svg { width: 16px; height: 16px; }
+  .topbar { padding: 0 16px; gap: 10px; }
+  .topbar-search { max-width: 160px; }
+  .topbar-search input { padding: 8px 12px 8px 34px; font-size: 12.5px; }
+  .page-content { padding: 18px; }
+}
+
+@media (hover: hover) and (pointer: fine) and (max-width: 900px) {
+  .topbar-search { display: none; }
+}
+
+@media (hover: hover) and (pointer: fine) and (max-width: 640px) {
+  .sidebar-brand { margin-right: 8px; }
+  .brand-text span { display: none; }
+  .topbar { padding: 0 12px; gap: 8px; }
+  .topbar-title small { display: none; }
+  .icon-btn { width: 34px; height: 34px; }
+  .topbar-profile-meta { display: none; }
+  .page-content { padding: 14px; }
+}
+
+/* ---------- MOBILE DRAWER (touch — any width) ----------
+   Applies to touch-primary devices (real phones/tablets) no matter
+   how wide the screen is — this is the existing mobile behavior,
+   unchanged: fixed drawer sidebar, hamburger toggle, hidden search,
+   backdrop. Placed last so it wins over the desktop rules above for
+   any device this query matches. */
+@media (hover: none), (pointer: coarse) {
+  #app-shell { grid-template-columns: 1fr; }
+  .sidebar {
+    position: fixed;
+    left: 0; top: 0;
+    z-index: 100;
+    width: var(--sidebar-w);
+    transform: translateX(-100%);
+    transition: transform var(--dur-slow) var(--ease);
+    box-shadow: var(--shadow-lg);
+  }
+  #app-shell.mobile-open .sidebar { transform: translateX(0); }
+  #app-shell.sidebar-collapsed .sidebar { padding: 20px 16px; }
+  #app-shell.sidebar-collapsed .brand-text { opacity: 1; width: auto; }
+  #app-shell.sidebar-collapsed .nav-item .nav-label { opacity: 1; width: auto; }
+  #app-shell.sidebar-collapsed .nav-item { justify-content: flex-start; }
+  .topbar-mobile-toggle {
+    display: flex; align-items: center; justify-content: center;
+    width: 38px; height: 38px; border-radius: var(--r-md);
+    background: var(--panel); border: 1px solid var(--border-soft); color: var(--text);
+  }
+  .topbar-search { display: none; }
+  .sidebar-backdrop {
+    display: none;
+    position: fixed; inset: 0; z-index: 90;
+    background: rgba(0,0,0,0.6);
+    transform: translateZ(0);
+    isolation: isolate;
+  }
+  #app-shell.mobile-open .sidebar-backdrop { display: block; }
+}
+@media (max-width: 640px) and (hover: none), (max-width: 640px) and (pointer: coarse) {
+  .page-content { padding: 18px; }
+  .topbar { padding: 0 16px; }
+  .topbar-profile-meta { display: none; }
+}

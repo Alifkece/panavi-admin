@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+<title>PanaviBunga Admin — Dashboard</title>
+<meta name="description" content="Dashboard Admin untuk mengelola produk, stok, order, lagu, dan pengumuman PanaviBunga Store.">
+<meta name="robots" content="noindex, nofollow">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22><rect width=%2224%22 height=%2224%22 rx=%226%22 fill=%22%237c6cff%22/></svg>">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
+<link rel="stylesheet" href="css/tokens.css">
+<link rel="stylesheet" href="css/base.css">
+<link rel="stylesheet" href="css/layout.css">
+<link rel="stylesheet" href="css/components.css">
+<link rel="stylesheet" href="css/animations.css">
+<link rel="stylesheet" href="css/pages.css">
+</head>
+<body>
+
+<div class="bg-mesh"><span></span></div>
+
+<!-- ===== INITIAL LOADER ===== -->
+<div id="page-loader" class="page-loader">
+  <div class="spinner" style="width:26px;height:26px;border-width:3px;"></div>
+</div>
+
+<!-- ===== AUTH SCREEN ===== -->
+<div id="auth-screen" class="auth-screen hidden">
+  <div class="auth-card">
+    <div class="auth-brand">
+      <div class="brand-mark">A</div>
+      <h1>PanaviBunga Admin</h1>
+      <p>Masuk untuk mengelola PanaviBunga Store</p>
+    </div>
+
+    <form id="login-form" autocomplete="on">
+      <div class="field">
+        <label for="login-email">Email</label>
+        <input type="email" id="login-email" placeholder="admin@panavibunga.store" required autocomplete="username">
+      </div>
+      <div class="field">
+        <label for="login-password">Kata Sandi</label>
+        <input type="password" id="login-password" placeholder="••••••••" required autocomplete="current-password">
+      </div>
+      <div id="login-error" class="hidden" style="font-size:12px;color:var(--rose);background:var(--rose-soft);border:1px solid rgba(251,69,112,0.25);padding:10px 12px;border-radius:var(--r-sm);margin-bottom:14px;"></div>
+      <button type="submit" id="btn-login" class="btn btn-primary btn-block">
+        <span>Masuk ke Dashboard</span>
+      </button>
+    </form>
+
+    <div class="divider"></div>
+    <p style="font-size:11.5px;color:var(--text-3);text-align:center;line-height:1.6;">
+      Akses dashboard ini terbatas untuk akun Admin yang terdaftar.<br>Dilindungi oleh Firebase Authentication &amp; Firestore Security Rules.
+    </p>
+  </div>
+</div>
+
+<!-- ===== APP SHELL ===== -->
+<div id="app-shell" class="hidden">
+  <div class="sidebar-backdrop" data-close-mobile-sidebar></div>
+
+  <aside class="sidebar">
+    <div class="sidebar-brand">
+      <div class="brand-mark">A</div>
+      <div class="brand-text">
+        <strong>PanaviBunga Admin</strong>
+        <span>Control Panel</span>
+      </div>
+    </div>
+
+    <div class="sidebar-section-label">Menu</div>
+    <nav id="sidebar-nav">
+      <a class="nav-item" data-route="dashboard" href="#/dashboard">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/></svg>
+        <span class="nav-label">Dashboard</span>
+      </a>
+      <a class="nav-item" data-route="products" href="#/products">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20.5 7.3 12 3 3.5 7.3 12 11.6z"/><path d="M3.5 7.3v9.4L12 21l8.5-4.3V7.3"/><path d="M12 11.6V21"/></svg>
+        <span class="nav-label">Produk</span>
+      </a>
+      <a class="nav-item" data-route="stock" href="#/stock">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/></svg>
+        <span class="nav-label">Stock</span>
+      </a>
+      <a class="nav-item" data-route="orders" href="#/orders">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+        <span class="nav-label">Orders</span>
+        <span class="nav-badge hidden" id="nav-badge-orders">0</span>
+      </a>
+      <a class="nav-item" data-route="songs" href="#/songs">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
+        <span class="nav-label">Music</span>
+        <span class="nav-eq hidden" id="nav-eq-music" aria-hidden="true">
+          <span class="nav-eq-bar"></span><span class="nav-eq-bar"></span><span class="nav-eq-bar"></span>
+        </span>
+      </a>
+      <a class="nav-item" data-route="media" href="#/media">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
+        <span class="nav-label">Media</span>
+      </a>
+      <a class="nav-item" data-route="announcements" href="#/announcements">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 11v2a1 1 0 0 0 1 1h2l4 4V6L6 10H4a1 1 0 0 0-1 1z"/><path d="M16 8a4 4 0 0 1 0 8"/><path d="M18.5 5.5a8 8 0 0 1 0 13"/></svg>
+        <span class="nav-label">Announcements</span>
+      </a>
+
+      <div class="sidebar-section-label">Sistem</div>
+      <a class="nav-item" data-route="settings" href="#/settings">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+        <span class="nav-label">Settings</span>
+      </a>
+      <a class="nav-item" data-route="profile" href="#/profile">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        <span class="nav-label">Profile</span>
+      </a>
+    </nav>
+
+    <div class="sidebar-spacer"></div>
+    <button type="button" class="sidebar-collapse-btn" id="btn-collapse-sidebar">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
+      <span class="nav-label">Ciutkan</span>
+    </button>
+  </aside>
+
+  <div class="main-col">
+    <header class="topbar">
+      <button type="button" class="topbar-mobile-toggle" id="btn-mobile-sidebar" aria-label="Buka menu">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+      </button>
+      <div class="topbar-title">
+        <h1 id="topbar-title">Dashboard</h1>
+        <small id="topbar-subtitle">panavibunga-store · Firestore live</small>
+      </div>
+
+      <div class="topbar-spacer"></div>
+
+      <div class="topbar-search">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <input type="search" id="global-search" placeholder="Cari produk, order, lagu...">
+      </div>
+
+      <div class="topbar-actions">
+        <button type="button" class="icon-btn" id="btn-refresh" title="Muat ulang data" aria-label="Muat ulang">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+        </button>
+        <div class="topbar-profile" id="topbar-profile-btn">
+          <div class="avatar-chip" id="topbar-avatar">A</div>
+          <div class="topbar-profile-meta">
+            <strong id="topbar-name">Admin</strong>
+            <span id="topbar-email">-</span>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <main class="page-content" id="page-content">
+      <!-- Halaman dirender di sini oleh router.js -->
+    </main>
+  </div>
+</div>
+  </div>
+
+<div id="modal-root"></div>
+<div id="toast-stack"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script type="module" src="js/app.js"></script>
+</body>
+</html>
