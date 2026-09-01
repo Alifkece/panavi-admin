@@ -28,10 +28,23 @@ import {
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 import { doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
+// BUG FIX (audit): race condition antara onAuthStateChanged dan
+// checkIsAdmin(). checkIsAdmin() adalah request Firestore async — kalau
+// user login lalu logout lalu login akun lain dengan cepat, beberapa
+// callback onAuthStateChanged bisa "tumpang tindih" dan checkIsAdmin() dari
+// event yang LEBIH LAMA bisa selesai SETELAH event yang lebih baru, lalu
+// menimpa UI dengan hasil basi (mis. membuka Dashboard untuk sesi yang
+// sudah ditinggalkan). Setiap firing diberi nomor generasi; hasil
+// checkIsAdmin() dari generasi yang bukan generasi terbaru dibuang, tidak
+// pernah memanggil callback().
+let authGeneration = 0;
+
 export function watchAuth(callback) {
   return onAuthStateChanged(auth, async (user) => {
+    const myGeneration = ++authGeneration;
     if (!user) return callback({ user: null, isAdmin: false });
     const isAdmin = await checkIsAdmin();
+    if (myGeneration !== authGeneration) return; // event auth lebih baru sudah menyusul, buang hasil basi ini
     callback({ user, isAdmin });
   });
 }
