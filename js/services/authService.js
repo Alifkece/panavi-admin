@@ -6,7 +6,7 @@
 //
 //   function isAdmin() {
 //     return request.auth != null &&
-//            request.auth.token.email == "panavi@my.id";
+//            request.auth.token.email == "alasky200@gmail.com";
 //   }
 //
 // Karena logika admin ada di rules (berbasis EMAIL, hardcoded), Admin
