@@ -14,7 +14,7 @@ import { getFirestore } from "https://www.gstatic.com/firebasejs/10.12.0/firebas
 import { getStorage } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-storage.js";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyAWW7qGBLd8J19Fx6juROxt5DRKweaEB8",
+  apiKey: "AIzaSyAWW7qGBLd8J19Fx6juROxt5DRKweaEBj8",
   authDomain: "panavibunga-store.firebaseapp.com",
   projectId: "panavibunga-store",
   storageBucket: "panavibunga-store.firebasestorage.app",
