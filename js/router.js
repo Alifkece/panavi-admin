@@ -5,6 +5,7 @@ import { setPageTitle } from "./components/topbar.js";
 
 const routes = {};
 let currentRoute = null;
+let hashListenerAttached = false; // BUG FIX (audit): cegah listener hashchange dipasang berkali-kali
 
 /** @param {string} name @param {{title:string, subtitle?:string, render:Function}} config */
 export function registerRoute(name, config) {
@@ -46,7 +47,19 @@ async function handleHashChange() {
 }
 
 export function startRouter() {
-  window.addEventListener("hashchange", handleHashChange);
+  // BUG FIX (audit): sebelumnya startRouter() dipanggil ulang setiap kali
+  // admin login (login -> logout -> login lagi) memasang listener
+  // "hashchange" BARU tanpa melepas yang lama, sehingga listener menumpuk
+  // setiap siklus login/logout. Sekarang listener HANYA dipasang sekali
+  // seumur halaman.
+  if (!hashListenerAttached) {
+    hashListenerAttached = true;
+    window.addEventListener("hashchange", handleHashChange);
+  }
+  // Reset currentRoute supaya login ulang (dengan hash yang kebetulan sama
+  // seperti sebelum logout) tetap memicu render ulang halaman yang segar,
+  // bukan di-skip oleh guard "route === currentRoute" di handleHashChange.
+  currentRoute = null;
   handleHashChange();
 }
 
