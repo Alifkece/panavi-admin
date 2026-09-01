@@ -7,6 +7,25 @@ import { emptyState, errorState } from "../components/state.js";
 import { escHtml } from "../utils/format.js";
 import { navigate } from "../router.js";
 
+// BUG FIX (audit): sebelumnya loadDashboardStats() tidak punya batas waktu
+// sama sekali — kalau Firestore/koneksi macet, dashboard bisa loading tanpa
+// batas (skeleton tidak pernah berubah jadi error/retry). Sekarang dibatasi
+// waktu; kalau lewat, dianggap gagal (fail closed) dan pengguna diberi
+// tombol "Coba lagi", bukan spinner selamanya.
+const DASHBOARD_LOAD_TIMEOUT_MS = 12000;
+function withTimeout(promise, ms) {
+  return Promise.race([
+    promise,
+    new Promise((_, reject) => {
+      setTimeout(() => {
+        const err = new Error("Waktu muat data dashboard habis");
+        err.code = "timeout";
+        reject(err);
+      }, ms);
+    }),
+  ]);
+}
+
 function statIcon(paths, tone) {
   return `<div class="stat-icon icon-tone-${tone}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">${paths}</svg></div>`;
 }
@@ -56,15 +75,25 @@ export async function render(container) {
   container.querySelector("#btn-view-orders").addEventListener("click", () => navigate("orders"));
 
   try {
-    const { totals, orders } = await loadDashboardStats();
+    const { totals, orders } = await withTimeout(loadDashboardStats(), DASHBOARD_LOAD_TIMEOUT_MS);
     renderStats(totals);
     renderRecentOrders(orders.slice(0, 10));
     renderStatusChart(orders);
   } catch (e) {
     console.error(e);
+    const isTimeout = e && e.code === "timeout";
+    const retryHtml = `<button type="button" class="btn btn-secondary btn-sm" id="btn-retry-dashboard">Coba lagi</button>`;
     container.querySelector("#stat-grid").innerHTML = "";
-    container.querySelector("#recent-orders").innerHTML = errorState({});
+    container.querySelector("#recent-orders").innerHTML = errorState({
+      title: isTimeout ? "Waktu muat habis" : "Gagal memuat data",
+      message: isTimeout
+        ? "Koneksi ke Firestore terlalu lama. Coba lagi."
+        : "Terjadi kesalahan saat mengambil data dari Firestore.",
+      actionHtml: retryHtml,
+    });
     container.querySelector("#status-chart").innerHTML = errorState({ title: "Gagal memuat grafik" });
+    const retryBtn = container.querySelector("#btn-retry-dashboard");
+    if (retryBtn) retryBtn.addEventListener("click", () => render(container));
   }
 }
 
