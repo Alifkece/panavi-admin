@@ -9,7 +9,6 @@ import { initPlayerEngine, getAudioElement } from "./services/playerEngine.js";
 
 import * as dashboardPage from "./pages/dashboard.js";
 import * as productsPage from "./pages/products.js";
-import * as stockPage from "./pages/stock.js";
 import * as ordersPage from "./pages/orders.js";
 import * as songsPage from "./pages/songs.js";
 import * as mediaPage from "./pages/media.js";
@@ -19,7 +18,6 @@ import * as profilePage from "./pages/profile.js";
 
 registerRoute("dashboard", { title: "Dashboard", subtitle: "panavibunga-store · Firestore live", render: dashboardPage.render });
 registerRoute("products", { title: "Produk", subtitle: "Collection: products", render: productsPage.render });
-registerRoute("stock", { title: "Stock", subtitle: "Collection: stock", render: stockPage.render });
 registerRoute("orders", { title: "Orders", subtitle: "Collection: orders", render: ordersPage.render });
 registerRoute("songs", { title: "Music", subtitle: "Collection: songs", render: songsPage.render });
 registerRoute("media", { title: "Media", subtitle: "Doc: settings/mediaLibrary", render: mediaPage.render });
