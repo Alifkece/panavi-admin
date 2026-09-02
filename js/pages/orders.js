@@ -1,7 +1,5 @@
 // ===== ORDERS PAGE =====
 import { listOrders, updateOrderStatus, deliverOrder, normalizeStatus, STATUS_TONE } from "../services/ordersService.js";
-import { listStock, markStockSold } from "../services/stockService.js";
-import { listProducts } from "../services/productsService.js";
 import { openModal, closeModal } from "../components/modal.js";
 import { confirmDialog } from "../components/confirmDialog.js";
 import { toastSuccess, toastError } from "../components/toast.js";
@@ -11,8 +9,6 @@ import { rupiah, formatDate, escHtml, debounce } from "../utils/format.js";
 import { setOrdersBadge } from "../components/sidebar.js";
 
 let allOrders = [];
-let stockItems = [];
-let products = [];
 let searchTerm = "";
 let statusFilter = "all";
 
@@ -67,7 +63,7 @@ export async function render(container) {
 
 async function loadAndRender() {
   try {
-    [allOrders, stockItems, products] = await Promise.all([listOrders(), listStock(), listProducts()]);
+    allOrders = await listOrders();
     setOrdersBadge(allOrders.filter((o) => normalizeStatus(o) === "PENDING").length);
     renderTable();
   } catch (e) {
@@ -121,7 +117,6 @@ function openOrderDetail(id) {
   if (!o) return;
   const status = normalizeStatus(o);
   const tone = STATUS_TONE[status] || "neutral";
-  const availableStockForProduct = stockItems.filter((s) => !s.sold && matchesProduct(s, o));
 
   const bodyHtml = `
     <div class="flex-between" style="margin-bottom:16px;">
@@ -147,18 +142,6 @@ function openOrderDetail(id) {
 
     <div class="divider"></div>
     <h3 style="font-size:13.5px;margin-bottom:10px;">Proses Pengiriman Akun</h3>
-
-    ${
-      availableStockForProduct.length
-        ? `<div class="field">
-            <label for="d-stock-pick">Isi otomatis dari Stock</label>
-            <select id="d-stock-pick">
-              <option value="">Pilih akun tersedia (opsional)...</option>
-              ${availableStockForProduct.map((s) => `<option value="${s.id}">${escHtml(s.label || s.email || s.id)}</option>`).join("")}
-            </select>
-          </div>`
-        : `<div class="field-hint" style="margin-bottom:14px;">Tidak ada stok tersedia untuk produk ini — isi manual di bawah atau tambah stok baru.</div>`
-    }
 
     <div class="field-row">
       <div class="field">
@@ -187,15 +170,6 @@ function openOrderDetail(id) {
   `;
 
   const overlay = openModal({ title: "Detail Order", subtitle: escHtml(o.productName || ""), bodyHtml, footHtml, wide: true });
-
-  const stockPick = overlay.querySelector("#d-stock-pick");
-  stockPick?.addEventListener("change", () => {
-    const stk = stockItems.find((s) => s.id === stockPick.value);
-    if (!stk) return;
-    overlay.querySelector("#d-email").value = stk.email || "";
-    overlay.querySelector("#d-password").value = stk.password || "";
-    if (stk.note) overlay.querySelector("#d-note").value = stk.note;
-  });
 
   overlay.querySelector("#btn-save-status").addEventListener("click", async () => {
     const newStatus = overlay.querySelector("#d-status").value;
@@ -230,7 +204,6 @@ function openOrderDetail(id) {
         deliveredLoginUrl: overlay.querySelector("#d-loginurl").value.trim(),
         deliveredNote: overlay.querySelector("#d-note").value.trim(),
       });
-      if (stockPick?.value) await markStockSold(stockPick.value, o.id);
       toastSuccess("Akun berhasil dikirim ke pelanggan.");
       closeModal();
       await loadAndRender();
@@ -238,16 +211,4 @@ function openOrderDetail(id) {
       toastError(e.message || "Gagal mengirim akun.");
     }
   });
-}
-
-function matchesProduct(stockItem, order) {
-  const product = products.find((p) => p.id === stockItem.productId);
-  if (!product || product.name !== order.productName) return false;
-  // Order yang sudah punya packageName (order baru, sejak stok dipisah per
-  // paket) WAJIB dicocokkan juga dengan packageName stok — supaya order
-  // paket "1 Bulan" tidak pernah bisa diisi dari stok paket "1 Tahun".
-  // Order lama tanpa packageName (dibuat sebelum fitur ini) tetap dicek
-  // hanya berdasarkan produk seperti perilaku semula.
-  if (order.packageName) return stockItem.packageName === order.packageName;
-  return true;
 }
