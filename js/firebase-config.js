@@ -25,7 +25,15 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
-const db = getFirestore(app);
+// BUG FIX (deployment): getFirestore(app) tanpa argumen kedua selalu
+// menunjuk ke database bernama "(default)". Database Firestore project ini
+// ternyata dibuat dengan ID "panavibunga-store" (bukan "(default)"),
+// sehingga SEMUA query Firestore dari Admin (checkIsAdmin, dashboard,
+// orders, stock, products) gagal dengan error "not-found" — yang di
+// authService.js checkIsAdmin() secara tidak sengaja tertutupi dan tampil
+// sebagai "Akun ini tidak memiliki akses Dashboard Admin.", padahal akar
+// masalahnya bukan soal admin/bukan-admin sama sekali.
+const db = getFirestore(app, "panavibunga-store");
 const storage = getStorage(app);
 
 export { app, auth, db, storage };
